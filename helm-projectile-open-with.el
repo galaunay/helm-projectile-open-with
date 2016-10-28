@@ -29,6 +29,11 @@
 
 ;;; Code:
 
+(require 'helm)
+(require 'projectile)
+
+(defvar helm-projectile-open-with--file-list ())
+
 (defcustom helm-projectile-open-with-associations
   '(("inkscape" . ("\\.svg" "\\.eps" "\\.pdf"))
     ("gimp" . ("\\.png" "\\.jpg" "\\.jpeg")))
@@ -38,10 +43,11 @@
 
 (defvar helm-projectile-open-with--source
   (helm-build-sync-source "Projectile open with"
-    :candidates 'helm-projectile-open-with--get-files
+    :candidates helm-projectile-open-with--file-list
     :fuzzy-match helm-projectile-fuzzy-match
     :mode-line helm-read-file-name-mode-line-string
-    :action '(("Open with" . helm-projectile-open-with--open-file)))
+    :action '(("Open with associated software" . helm-projectile-open-with--open-file)
+	      ("Open in Emacs" . find-file)))
   "Helm source for opening projectile files with different softwares")
 
 (defun helm-projectile-open-with--get-editing-software (filename)
@@ -62,18 +68,21 @@
 	  (when (helm-projectile-open-with--get-editing-software file)
 	    (setq proj-images (cons file proj-images))))
     (if (= (length proj-images) 0)
-      (message "No file with associated software in this project")
+      (error "[%s] No file with associated software in this project" (projectile-project-name))
     proj-images)))
+
+(defun helm-projectile-open-with--open-file (file)
+  "Open a file with the associated software"
+  (let ((soft (helm-projectile-open-with--get-editing-software file)))
+    (call-process soft nil 0 nil file)))
 
 (defun helm-projectile-open-with ()
   "Select a project file and open it with the associated software"
   (interactive)
+  (setq helm-projectile-open-with--file-list (helm-projectile-open-with--get-files))
   (helm :sources 'helm-projectile-open-with--source
 	:buffer "*helm-projectile-edit*"
 	:nomark t
-	:prompt "Choose a file: "))
+	:prompt "Find file: "))
 
-(defun helm-projectile-open-with--dwim (file)
-  "Open a file with the associated software"
-  (let ((soft (helm-projectile-open-with--get-editing-software file)))
-    (call-process soft nil 0 nil file)))
+(provide 'helm-projectile-open-with)
