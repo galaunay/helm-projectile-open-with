@@ -43,8 +43,9 @@
 
 (defvar helm-projectile-open-with--source
   (helm-build-sync-source "Projectile open with"
-    :candidates helm-projectile-open-with--file-list
+    :candidates (lambda () helm-projectile-open-with--file-list)
     :fuzzy-match helm-projectile-fuzzy-match
+    :keymap helm-find-files-map
     :mode-line helm-read-file-name-mode-line-string
     :action '(("Open with associated software" . helm-projectile-open-with--open-file)
 	      ("Open in Emacs" . find-file)))
@@ -74,14 +75,15 @@
 (defun helm-projectile-open-with--open-file (file)
   "Open a file with the associated software"
   (let ((soft (helm-projectile-open-with--get-editing-software file)))
+    (message "Open \"%s\" with %s" file (capitalize soft))
     (call-process soft nil 0 nil file)))
 
 (defun helm-projectile-open-with ()
   "Select a project file and open it with the associated software"
   (interactive)
   (setq helm-projectile-open-with--file-list (helm-projectile-open-with--get-files))
-  (helm :sources 'helm-projectile-open-with--source
-	:buffer "*helm-projectile-edit*"
+  (helm :sources helm-projectile-open-with--source
+	:buffer "*helm-projectile-open-with*"
 	:nomark t
 	:prompt "Find file: "))
 
