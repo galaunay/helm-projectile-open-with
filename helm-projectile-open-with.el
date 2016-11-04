@@ -1,4 +1,4 @@
-;;; helm-projectile-open-with.el ---
+;;; hèle-projectile-open-with.el ---
 
 ;; Copyright (C) 2016 Launay Gaby
 
@@ -41,14 +41,23 @@
   :type '(alist :key-type (string) :value-type (repeat regexp))
   :group 'helm-projectile-open-with)
 
+(defvar helm-projectile-open-with-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map helm-map)
+    (define-key map (kbd "M-p") (lambda () (interactive) (helm-exit-and-execute-action 'insert)))
+    (define-key map (kbd "M-e") (lambda () (interactive) (helm-exit-and-execute-action 'find-file)))
+    map)
+  "Keymap used in helm-mu.")
+
 (defvar helm-projectile-open-with--source
   (helm-build-sync-source "Projectile open with"
     :candidates (lambda () helm-projectile-open-with--file-list)
     :fuzzy-match helm-projectile-fuzzy-match
-    :keymap helm-find-files-map
+    :keymap helm-projectile-open-with-map
     :mode-line helm-read-file-name-mode-line-string
     :action '(("Open with associated software" . helm-projectile-open-with--open-file)
-	      ("Open in Emacs" . find-file)))
+	      ("Open in Emacs" . find-file)
+	      ("Insert at point" . insert)))
   "Helm source for opening projectile files with different softwares")
 
 (defun helm-projectile-open-with--get-editing-software (filename)
@@ -86,5 +95,8 @@
 	:buffer "*helm-projectile-open-with*"
 	:nomark t
 	:prompt "Find file: "))
+
+;; set helm keybinding
+(define-key helm-projectile-open-with-map (kbd "M-w") 'helm-ff-run-switch-other-window)
 
 (provide 'helm-projectile-open-with)
