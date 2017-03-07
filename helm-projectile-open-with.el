@@ -36,7 +36,7 @@
 
 (defcustom helm-projectile-open-with-associations
   '(("inkscape" . ("\\.svg" "\\.eps" "\\.pdf"))
-    ("gimp" . ("\\.png" "\\.jpg" "\\.jpeg")))
+    ("gimp" . ("\\.xcf" "\\.png" "\\.jpg" "\\.jpeg")))
   "Associations between softwares and file extensions"
   :type '(alist :key-type (string) :value-type (repeat regexp))
   :group 'helm-projectile-open-with)
