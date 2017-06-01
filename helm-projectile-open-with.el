@@ -83,9 +83,10 @@
 
 (defun helm-projectile-open-with--open-file (file)
   "Open a file with the associated software"
-  (let ((soft (helm-projectile-open-with--get-editing-software file)))
+  (let ((soft (helm-projectile-open-with--get-editing-software file))
+        (filepath (concat (projectile-project-root) file)))
     (message "Open \"%s\" with %s" file (capitalize soft))
-    (call-process soft nil 0 nil file)))
+    (call-process soft nil 0 nil filepath)))
 
 (defun helm-projectile-open-with ()
   "Select a project file and open it with the associated software"
